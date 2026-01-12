@@ -44,9 +44,9 @@ func main() {
 	// Статические файлы (изображения)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
-	log.Println("starting on localhost:9090")
+	log.Println("starting on 0.0.0.0:9090")
 
-	if err := http.ListenAndServe(":9090", nil); err != nil {
+	if err := http.ListenAndServe("0.0.0.0:9090", nil); err != nil {
 		log.Fatalf("starting server error: %v", err)
 	}
 }

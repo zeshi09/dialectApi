@@ -7,8 +7,12 @@
       href="https://fonts.googleapis.com/css2?family=Ruslan+Display&display=swap"
       rel="stylesheet"
     />
-    <script src="https://api-maps.yandex.ru/2.1/?apikey=1a4107c4-15d2-4385-9699-122c08dda45c&lang=ru_RU"></script>
     <script src="https://unpkg.com/htmx.org@1.9.5"></script>
+    <script
+      src="https://api-maps.yandex.ru/2.1/?apikey=1a4107c4-15d2-4385-9699-122c08dda45c&lang=ru_RU"
+      type="text/javascript"
+      onerror="console.error('Не удалось загрузить Яндекс.Карты. Проверьте расширения браузера или настройки блокировки.')">
+    </script>
 
     <style>
       @font-face {
@@ -539,23 +543,32 @@
       var filteredLocationIds = []; // Список ID отфильтрованных локаций
       var currentLocationIndex = -1; // Текущий индекс в списке
 
-      ymaps.ready(function () {
-        map = new ymaps.Map("map", {
-          center: [58.484452, 43.406617],
-          zoom: 7,
-          controls: ["zoomControl"],
+      // Инициализация карты только если ymaps загружен
+      if (typeof ymaps !== 'undefined') {
+        ymaps.ready(function () {
+          map = new ymaps.Map("map", {
+            center: [58.484452, 43.406617],
+            zoom: 7,
+            controls: ["zoomControl"],
+          });
+
+          // Создаем коллекцию для маркеров
+          markerCollection = new ymaps.GeoObjectCollection();
+          map.geoObjects.add(markerCollection);
+
+          // Загружаем область из GeoJSON
+          loadRegionBoundary();
+
+          // Загружаем маркеры при инициализации
+          loadMarkers();
         });
-
-        // Создаем коллекцию для маркеров
-        markerCollection = new ymaps.GeoObjectCollection();
-        map.geoObjects.add(markerCollection);
-
-        // Загружаем область из GeoJSON
-        loadRegionBoundary();
-
-        // Загружаем маркеры при инициализации
-        loadMarkers();
-      });
+      } else {
+        console.warn('Яндекс.Карты не загружены. Карта будет недоступна.');
+        // Скрываем контейнер карты
+        document.querySelector('.map-wrapper').style.display = 'none';
+        // Растягиваем sidebar на весь экран
+        document.querySelector('.sidebar').style.width = '100%';
+      }
 
       // Функция загрузки границ области
       async function loadRegionBoundary() {
