@@ -1,25 +1,45 @@
 package main
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"log"
+	"os"
 
+	"github.com/zeshi09/dialectApi/ent"
 	_ "github.com/lib/pq"
 )
 
-func connectDB() *sql.DB {
-	connStr := "host=localhost port=5432 user=postgres password=postgres dbname=location sslmode=disable"
+func connectDB(ctx context.Context) *ent.Client {
+	// Получаем параметры подключения из переменных окружения или используем значения по умолчанию
+	host := getEnv("DB_HOST", "localhost")
+	port := getEnv("DB_PORT", "5432")
+	user := getEnv("DB_USER", "postgres")
+	password := getEnv("DB_PASSWORD", "postgres")
+	dbname := getEnv("DB_NAME", "location")
 
-	db, err := sql.Open("postgres", connStr)
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+
+	client, err := ent.Open("postgres", connStr)
 	if err != nil {
-		log.Fatalf("db init connection error: %v", err)
+		log.Fatalf("failed opening connection to postgres: %v", err)
 	}
 
-	if err := db.Ping(); err != nil {
-		log.Fatalf("db connect error: %v", err)
+	// Проверка подключения
+	if err := client.Schema.Create(ctx); err != nil {
+		log.Printf("warning: schema creation: %v", err)
 	}
 
 	fmt.Println("successful db connecting")
-	return db
+	return client
+}
+
+// getEnv возвращает значение переменной окружения или значение по умолчанию
+func getEnv(key, defaultValue string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
+	}
+	return value
 }

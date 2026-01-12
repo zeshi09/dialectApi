@@ -1,0 +1,17 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Устанавливаем psycopg2
+RUN pip install --no-cache-dir psycopg2-binary
+
+# Копируем CSV файлы и скрипт
+COPY data/chrononyms_fin.csv /app/
+COPY data/districts_coords.csv /app/
+COPY scripts/init_db_docker.py /app/
+
+# Делаем скрипт исполняемым
+RUN chmod +x /app/init_db_docker.py
+
+# Запускаем скрипт инициализации
+CMD ["python3", "/app/init_db_docker.py"]

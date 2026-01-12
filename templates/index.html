@@ -1,221 +1,1025 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Хрононимы Костромской области</title>
-    <link href="https://fonts.googleapis.com/css2?family=Ruslan+Display&display=swap" rel="stylesheet">
-    <script src="https://api-maps.yandex.ru/2.1/?apikey=ВАШ_API_КЛЮЧ&lang=ru_RU"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Ruslan+Display&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=1a4107c4-15d2-4385-9699-122c08dda45c&lang=ru_RU"></script>
     <script src="https://unpkg.com/htmx.org@1.9.5"></script>
 
     <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            font-family: sans-serif;
-            background: #f5f5f5;
-        }
+      @font-face {
+        font-family: "LondonRus";
+        src: url("/static/LondonRus52-Condensed.otf") format("opentype");
+        font-weight: normal;
+        font-style: normal;
+      }
 
-        .container {
-            display: flex;
-            justify-content: space-between;
-            height: 100%;
-            width: 100%;
-            box-sizing: border-box;
-            gap: 20px;
-        }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: sans-serif;
+        background: #f5f5f5;
+      }
 
-        .sidebar {
-            width: 33.3%;
-            padding: 20px;
-            background: white;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            overflow-y: auto;
-        }
+      .container {
+        display: flex;
+        justify-content: space-between;
+        height: 100%;
+        width: 100%;
+        box-sizing: border-box;
+        gap: 20px;
+      }
 
-        .sidebar h2 {
-            font-family: 'Ruslan Display', cursive;
-            font-size: 28px;
-            letter-spacing: 0.5px;
-            margin-bottom: 16px;
-            color: #111;
-        }
+      .sidebar {
+        width: 33.3%;
+        padding: 20px;
+        background: white;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        position: relative;
+      }
 
-        .map-wrapper {
-            width: 66.6%;
-            padding: 20px;
-            box-sizing: border-box;
-        }
+      .sidebar h2 {
+        font-family: "Ruslan Display", cursive;
+        font-size: 28px;
+        letter-spacing: 0.5px;
+        margin-bottom: 16px;
+        color: #111;
+      }
 
-        .map-area {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            transition: all 0.3s ease;
-        }
+      .map-wrapper {
+        width: 66.6%;
+        padding: 20px;
+        box-sizing: border-box;
+      }
 
-        /* Карта по умолчанию */
-        #map {
-            width: 100%;
-            height: 100%;
-            border-radius: 20px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.2);
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
+      .map-area {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        transition: all 0.3s ease;
+      }
 
-        /* При наличии карточки — карта сужается */
-        .map-area.has-detail #map {
-            height: 50%;
-            border-radius: 0 0 20px 20px;
-        }
+      /* Карта по умолчанию */
+      #map {
+        width: 100%;
+        height: 100%;
+        border-radius: 20px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+      }
 
-        /* Карточка по умолчанию — невидима */
-        #card-detail {
-            height: 0;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
+      /* При наличии карточки — карта сужается */
+      .map-area.has-detail #map {
+        height: 65%;
+        border-radius: 0 0 20px 20px;
+      }
 
-        /* Когда активна — 50% сверху */
-        .map-area.has-detail #card-detail {
-            height: 50%;
-            border-radius: 20px 20px 0 0;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-        }
+      /* Карточка по умолчанию — невидима */
+      #card-detail {
+        height: 0;
+        overflow: hidden;
+        transition: all 0.3s ease;
+      }
 
-        .card-detail-overlay {
-            background: white;
-            height: 100%;
-            padding: 20px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+      /* Когда активна — 35% сверху */
+      .map-area.has-detail #card-detail {
+        height: 35%;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      }
 
-        .close-btn {
-            align-self: flex-end;
-            background: #eee;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-        }
+      .card-detail-overlay {
+        background: white;
+        height: 100%;
+        padding: 20px 20px 20px 50px;
+        position: relative;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        overflow-y: auto;
+      }
 
-        .close-btn:hover {
-            background: #ddd;
-        }
+      .card-detail-overlay h2 {
+        margin: 0 0 15px 0;
+        padding: 0;
+        font-family: "LondonRus", "Ruslan Display", serif;
+        color: #dc143c;
+        font-size: 40px;
+      }
 
-        .card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            cursor: pointer;
-        }
+      .card-detail-overlay p {
+        margin: 5px 0;
+        padding: 0;
+        line-height: 1.4;
+      }
 
-        .btn {
-            margin-top: 10px;
-            padding: 6px 12px;
-            background: #222;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
+      /* Декоративные элементы в углах - костромская роспись */
+      .card-detail-overlay::before {
+        content: "";
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        opacity: 0.8;
+        pointer-events: none;
+        background-image: url("/static/path1.png");
+        background-size: contain;
+        background-repeat: no-repeat;
+      }
 
-        .btn:hover {
-            background: #000;
+      /* Верхний левый угол - отражаем по вертикали */
+      .card-detail-overlay::before {
+        top: 0;
+        left: 0;
+        transform: scaleY(-1);
+      }
+
+      /* Нижние углы через дополнительный wrapper */
+      .card-detail-overlay .corner-bottom-left,
+      .card-detail-overlay .corner-bottom-right {
+        content: "";
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        opacity: 0;
+        pointer-events: none;
+        background-image: url("/static/path1.png");
+        background-size: contain;
+        background-repeat: no-repeat;
+      }
+
+      /* Нижний левый угол - оригинальное изображение */
+      .corner-bottom-left {
+        bottom: 0;
+        left: 0;
+      }
+
+      /* Нижний правый угол - отражаем по горизонтали */
+      .corner-bottom-right {
+        bottom: 0;
+        right: 0;
+        transform: scaleX(-1);
+      }
+
+      /* Анимация появления декора */
+      @keyframes fadeInDraw {
+        0% {
+          opacity: 0;
         }
+        100% {
+          opacity: 0.8;
+        }
+      }
+
+      /* Применяем анимацию при открытии карточки */
+      .card-detail-overlay.animate::before {
+        animation: fadeInDraw 0.6s ease-out forwards;
+      }
+
+      .card-detail-overlay.animate .corner-bottom-left {
+        animation: fadeInDraw 0.6s ease-out 0.2s forwards;
+      }
+
+      .card-detail-overlay.animate .corner-bottom-right {
+        animation: fadeInDraw 0.6s ease-out 0.4s forwards;
+      }
+
+      .detail-controls {
+        display: flex;
+        gap: 8px;
+        align-self: flex-end;
+        margin-bottom: 10px;
+      }
+
+      .nav-btn {
+        background: #eee;
+        border: none;
+        padding: 6px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        min-width: 32px;
+        transition: background 0.2s;
+      }
+
+      .nav-btn:hover {
+        background: #ddd;
+      }
+
+      .nav-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .copy-btn {
+        background: #eee;
+        border: none;
+        padding: 6px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        min-width: 32px;
+        height: 32px;
+        transition: background 0.2s;
+        background-image: url('/static/clipboard-svgrepo-com.svg');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 18px 18px;
+      }
+
+      .copy-btn:hover {
+        background-color: #ddd;
+      }
+
+      .copy-btn.copied {
+        background-color: #90ee90;
+        background-image: none;
+      }
+
+      .copy-btn.copied::after {
+        content: "✓";
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .close-btn {
+        background: #eee;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .close-btn:hover {
+        background: #ddd;
+      }
+
+      .card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .card:hover {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+        background: #f8f8f8;
+      }
+
+      .card:active {
+        animation: shake 0.3s ease;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-4px);
+        }
+        75% {
+          transform: translateX(4px);
+        }
+      }
+
+      .btn {
+        margin-top: 10px;
+        padding: 6px 12px;
+        background: #222;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      .btn:hover {
+        background: #000;
+      }
+
+      /* Форма фильтрации */
+      .filter-form {
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      .filter-form h3 {
+        margin: 0 0 12px 0;
+        font-size: 16px;
+        color: #333;
+      }
+
+      .filter-group {
+        margin-bottom: 12px;
+      }
+
+      .filter-group label {
+        display: block;
+        font-size: 13px;
+        color: #555;
+        margin-bottom: 5px;
+        font-weight: 500;
+      }
+
+      .filter-group input,
+      .filter-group select {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        box-sizing: border-box;
+      }
+
+      .filter-group input:focus,
+      .filter-group select:focus {
+        outline: none;
+        border-color: #666;
+      }
+
+      .filter-buttons {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .filter-btn {
+        flex: 1;
+        padding: 8px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: background 0.2s;
+      }
+
+      .filter-btn-apply {
+        background: #222;
+        color: white;
+      }
+
+      .filter-btn-apply:hover {
+        background: #000;
+      }
+
+      .filter-btn-reset {
+        background: #e0e0e0;
+        color: #333;
+      }
+
+      .filter-btn-reset:hover {
+        background: #d0d0d0;
+      }
+
+      /* Счетчик загруженных карточек */
+      .cards-counter {
+        padding: 10px 0;
+        margin: 15px 0;
+        text-align: center;
+        color: #666;
+        font-size: 13px;
+        border-top: 1px solid #eee;
+        border-bottom: 1px solid #eee;
+      }
+
+      /* Кнопки прокрутки */
+      .scroll-buttons {
+        position: sticky;
+        bottom: 30px;
+        left: calc(100% - 70px);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: auto;
+        float: right;
+        z-index: 100;
+      }
+
+      .scroll-to-top,
+      .scroll-to-bottom {
+        background: #222;
+        color: white;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .scroll-to-top:hover,
+      .scroll-to-bottom:hover {
+        background: #000;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+      }
+
+      .scroll-to-top.visible,
+      .scroll-to-bottom.visible {
+        display: flex;
+      }
+
+      .scroll-to-bottom:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <div class="container">
+      <div class="sidebar">
+        <h2>Хрононимы<br />Костромской области</h2>
 
-<div class="container">
-    <div class="sidebar" id="cards">
-        <h2>Хрононимы<br>Костромской области</h2>
-        <button class="btn" hx-get="/card?id=1" hx-target="#cards" hx-swap="beforeend">➕ Добавить карточку 1</button>
-        <button class="btn" hx-get="/card?id=2" hx-target="#cards" hx-swap="beforeend">➕ Добавить карточку 2</button>
-
-        <!-- Пример карточек -->
-        <div class="card"
-             hx-get="/detail?id=1"
-             hx-target="#card-detail"
-             hx-swap="innerHTML">
-            <h3>Карточка 1</h3>
-            <p>Краткое описание карточки 1</p>
+        <!-- Форма фильтрации -->
+        <div class="filter-form">
+          <h3>Фильтры</h3>
+          <form id="filter-form">
+            <div class="filter-group">
+              <label for="search">Поиск по названию</label>
+              <input
+                type="text"
+                id="search"
+                name="search"
+                placeholder="Введите название..."
+              />
+            </div>
+            <div class="filter-group">
+              <label for="district">Район</label>
+              <select id="district" name="district">
+                <option value="">Все районы</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="selsovet">Сельсовет</label>
+              <select id="selsovet" name="selsovet">
+                <option value="">Все сельсоветы</option>
+              </select>
+            </div>
+            <div class="filter-buttons">
+              <button
+                type="button"
+                class="filter-btn filter-btn-apply"
+                onclick="applyFilters()"
+              >
+                Применить
+              </button>
+              <button
+                type="button"
+                class="filter-btn filter-btn-reset"
+                onclick="resetFilters()"
+              >
+                Сбросить
+              </button>
+            </div>
+          </form>
         </div>
 
-        <div class="card"
-             hx-get="/detail?id=2"
-             hx-target="#card-detail"
-             hx-swap="innerHTML">
-            <h3>Карточка 2</h3>
-            <p>Краткое описание карточки 2</p>
+        <!-- Счетчик загруженных карточек -->
+        <div class="cards-counter" id="cards-counter">
+          Загрузка...
         </div>
-    </div>
 
-    <div class="map-wrapper">
+        <div
+          id="cards"
+          hx-get="/api/locations?offset=0&limit=100"
+          hx-trigger="load"
+          hx-swap="innerHTML"
+        >
+          <p>Загрузка первых карточек...</p>
+        </div>
+
+        <!-- Кнопки прокрутки -->
+        <div class="scroll-buttons">
+          <button class="scroll-to-top" id="scrollToTop" title="Вернуться наверх">
+            ↑
+          </button>
+          <button class="scroll-to-bottom" id="scrollToBottom" title="Загрузить все и прокрутить вниз">
+            ↓
+          </button>
+        </div>
+      </div>
+
+      <div class="map-wrapper">
         <div class="map-area">
-            <div id="card-detail"></div>
-            <div id="map"></div>
+          <div id="card-detail"></div>
+          <div id="map"></div>
         </div>
+      </div>
     </div>
-</div>
 
-<script>
-    ymaps.ready(function () {
-        var map = new ymaps.Map("map", {
-            center: [58.484452, 43.406617],
-            zoom: 7,
-            controls: []
+    <script>
+      var map; // Глобальная переменная для карты
+      var markerCollection; // Коллекция маркеров
+      var filteredLocationIds = []; // Список ID отфильтрованных локаций
+      var currentLocationIndex = -1; // Текущий индекс в списке
+
+      ymaps.ready(function () {
+        map = new ymaps.Map("map", {
+          center: [58.484452, 43.406617],
+          zoom: 7,
+          controls: ["zoomControl"],
         });
-    });
 
-    // HTMX-хуки: добавляем и убираем класс
-    document.body.addEventListener('htmx:afterSwap', function (evt) {
+        // Создаем коллекцию для маркеров
+        markerCollection = new ymaps.GeoObjectCollection();
+        map.geoObjects.add(markerCollection);
+
+        // Загружаем область из GeoJSON
+        loadRegionBoundary();
+
+        // Загружаем маркеры при инициализации
+        loadMarkers();
+      });
+
+      // Функция загрузки границ области
+      async function loadRegionBoundary() {
+        try {
+          console.log("Starting to load region boundary...");
+          const response = await fetch("/static/Kostromskaya.geojson");
+          console.log("GeoJSON response status:", response.status);
+
+          const geojson = await response.json();
+          console.log(
+            "GeoJSON loaded, coordinates count:",
+            geojson.geometry.coordinates[0].length,
+          );
+
+          // Преобразуем координаты из GeoJSON формата в формат Яндекс карт
+          const coordinates = geojson.geometry.coordinates[0].map((coord) => [
+            coord[1],
+            coord[0],
+          ]);
+          console.log("First coordinate:", coordinates[0]);
+          console.log("Last coordinate:", coordinates[coordinates.length - 1]);
+
+          // Создаем полигон
+          const polygon = new ymaps.Polygon(
+            [coordinates],
+            {
+              hintContent: "Костромская область",
+            },
+            {
+              fillColor: "#FFA50080", // Оранжевый цвет с прозрачностью (80 = ~50%)
+              strokeColor: "#FF6600", // Яркая оранжевая граница
+              strokeWidth: 4,
+              strokeStyle: "solid",
+              zIndex: 100,
+            },
+          );
+
+          console.log("Polygon created");
+
+          // Добавляем полигон на карту ПЕРЕД маркерами, чтобы он был под ними
+          map.geoObjects.add(polygon);
+
+          console.log(
+            "Region boundary loaded successfully, polygon added to map",
+          );
+        } catch (error) {
+          console.error("Error loading region boundary:", error);
+        }
+      }
+
+      // Функция загрузки и обновления маркеров
+      async function loadMarkers() {
+        if (!map) return;
+
+        // Получаем текущие значения фильтров
+        const search = document.getElementById("search").value;
+        const district = document.getElementById("district").value;
+        const selsovet = document.getElementById("selsovet").value;
+
+        // Формируем URL с параметрами фильтров
+        let url = "/api/markers?";
+        const params = [];
+        if (search) params.push("search=" + encodeURIComponent(search));
+        if (district) params.push("district=" + encodeURIComponent(district));
+        if (selsovet) params.push("selsovet=" + encodeURIComponent(selsovet));
+        url += params.join("&");
+
+        try {
+          const response = await fetch(url);
+          const markers = await response.json();
+
+          // Очищаем существующие маркеры
+          markerCollection.removeAll();
+
+          // Добавляем новые маркеры
+          markers.forEach((marker) => {
+            const placemark = new ymaps.Placemark(
+              [marker.latitude, marker.longitude],
+              {
+                hintContent: `${marker.district}, ${marker.selsovet}`,
+              },
+              {
+                preset: "islands#redDotIcon",
+              },
+            );
+
+            // Обработчик клика по маркеру
+            placemark.events.add("click", function () {
+              // Устанавливаем фильтры
+              document.getElementById("district").value = marker.district;
+              document.getElementById("selsovet").value = marker.selsovet;
+
+              // Применяем фильтрацию
+              applyFilters();
+            });
+
+            markerCollection.add(placemark);
+          });
+        } catch (error) {
+          console.error("Error loading markers:", error);
+        }
+      }
+
+      // HTMX-хуки: добавляем и убираем класс
+      document.body.addEventListener("htmx:afterSwap", function (evt) {
         if (evt.detail.target.id === "card-detail") {
-            document.querySelector('.map-area')?.classList.add('has-detail');
+          document.querySelector(".map-area")?.classList.add("has-detail");
         }
-    });
+        // Обновляем список ID после загрузки карточек
+        if (evt.detail.target.id === "cards") {
+          updateFilteredLocationIds();
+        }
+      });
 
-    document.body.addEventListener('htmx:beforeSwap', function (evt) {
-        if (evt.detail.target.id === "card-detail" && evt.detail.xhr.response === "") {
-            document.querySelector('.map-area')?.classList.remove('has-detail');
+      document.body.addEventListener("htmx:beforeSwap", function (evt) {
+        if (
+          evt.detail.target.id === "card-detail" &&
+          evt.detail.xhr.response === ""
+        ) {
+          document.querySelector(".map-area")?.classList.remove("has-detail");
         }
-    });
-       function closeCardSmoothly() {
-        const cardDetail = document.getElementById('card-detail');
-        const overlay = document.getElementById('detail-overlay');
-        const mapArea = document.querySelector('.map-area');
+      });
+
+      // Загрузка списков районов и сельсоветов
+      async function loadFilters() {
+        try {
+          const response = await fetch("/api/filters");
+          const html = await response.text();
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, "text/html");
+          const filterOptions = doc.getElementById("filter-options");
+
+          if (filterOptions) {
+            const districts = filterOptions.dataset.districts;
+            const selsovets = filterOptions.dataset.selsovets;
+
+            document.getElementById("district").innerHTML =
+              '<option value="">Все районы</option>' + districts;
+            document.getElementById("selsovet").innerHTML =
+              '<option value="">Все сельсоветы</option>' + selsovets;
+          }
+        } catch (error) {
+          console.error("Error loading filters:", error);
+        }
+      }
+
+      // Применение фильтров
+      function applyFilters() {
+        const search = document.getElementById("search").value;
+        const district = document.getElementById("district").value;
+        const selsovet = document.getElementById("selsovet").value;
+
+        let url = "/api/locations?offset=0&limit=100";
+
+        if (search) {
+          url += "&search=" + encodeURIComponent(search);
+        }
+        if (district) {
+          url += "&district=" + encodeURIComponent(district);
+        }
+        if (selsovet) {
+          url += "&selsovet=" + encodeURIComponent(selsovet);
+        }
+
+        // Обновляем список карточек
+        htmx.ajax("GET", url, { target: "#cards", swap: "innerHTML" });
+
+        // Обновляем маркеры на карте
+        loadMarkers();
+      }
+
+      // Сброс фильтров
+      function resetFilters() {
+        document.getElementById("search").value = "";
+        document.getElementById("district").value = "";
+        document.getElementById("selsovet").value = "";
+
+        // Загружаем карточки без фильтров
+        htmx.ajax("GET", "/api/locations?offset=0&limit=100", {
+          target: "#cards",
+          swap: "innerHTML",
+        });
+
+        // Обновляем маркеры на карте
+        loadMarkers();
+      }
+
+      // Загружаем фильтры при загрузке страницы
+      document.addEventListener("DOMContentLoaded", loadFilters);
+
+      // Поиск в реальном времени при вводе в поле поиска
+      let searchTimeout;
+      document.getElementById("search").addEventListener("input", function () {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          applyFilters(); // Обновит и карточки, и маркеры
+        }, 500); // Задержка 500мс после окончания ввода
+      });
+
+      // Обновляем маркеры при изменении фильтров по району или сельсовету
+      document
+        .getElementById("district")
+        .addEventListener("change", function () {
+          // При выборе района можно автоматически применить фильтр
+          // Или оставить как есть - только по кнопке "Применить"
+        });
+
+      document
+        .getElementById("selsovet")
+        .addEventListener("change", function () {
+          // При выборе сельсовета можно автоматически применить фильтр
+          // Или оставить как есть - только по кнопке "Применить"
+        });
+
+      function closeCardSmoothly() {
+        const cardDetail = document.getElementById("card-detail");
+        const overlay = document.getElementById("detail-overlay");
+        const mapArea = document.querySelector(".map-area");
 
         if (overlay && cardDetail && mapArea) {
-            // убираем видимость
-            overlay.style.opacity = '0';
-            overlay.style.transition = 'opacity 0.3s ease';
+          // убираем видимость и анимацию
+          overlay.classList.remove("animate");
+          overlay.style.opacity = "0";
+          overlay.style.transition = "opacity 0.3s ease";
 
-            // через 300мс убираем контент и сбрасываем has-detail
+          // через 300мс убираем контент и сбрасываем has-detail
+          setTimeout(() => {
+            cardDetail.innerHTML = "";
+            mapArea.classList.remove("has-detail");
+            currentLocationIndex = -1;
+          }, 300);
+        }
+      }
+
+      // Функция для обновления списка ID отфильтрованных локаций
+      function updateFilteredLocationIds() {
+        const cards = document.querySelectorAll("#cards .card");
+        filteredLocationIds = [];
+        cards.forEach((card) => {
+          const hxGet = card.getAttribute("hx-get");
+          if (hxGet) {
+            const match = hxGet.match(/id=(\d+)/);
+            if (match) {
+              filteredLocationIds.push(parseInt(match[1]));
+            }
+          }
+        });
+
+        // Обновляем счетчик
+        updateCardsCounter();
+      }
+
+      // Функция для обновления счетчика карточек
+      function updateCardsCounter() {
+        const counter = document.getElementById("cards-counter");
+        const totalCountEl = document.getElementById("total-count");
+
+        // Получаем общее количество отфильтрованных записей
+        const count = totalCountEl ? parseInt(totalCountEl.dataset.count) : 0;
+
+        if (count === 0) {
+          counter.textContent = "Ничего не найдено";
+        } else if (count === 1) {
+          counter.textContent = "Найдено 1 слово";
+        } else if (count >= 2 && count <= 4) {
+          counter.textContent = `Найдено ${count} слова`;
+        } else {
+          counter.textContent = `Найдено ${count} слов`;
+        }
+      }
+
+      // Навигация к предыдущей карточке
+      function navigatePrev() {
+        if (currentLocationIndex > 0) {
+          currentLocationIndex--;
+          loadDetailCard(filteredLocationIds[currentLocationIndex]);
+        }
+      }
+
+      // Навигация к следующей карточке
+      function navigateNext() {
+        if (currentLocationIndex < filteredLocationIds.length - 1) {
+          currentLocationIndex++;
+          loadDetailCard(filteredLocationIds[currentLocationIndex]);
+        }
+      }
+
+      // Загрузка детальной карточки по ID
+      function loadDetailCard(id) {
+        htmx.ajax("GET", `/detail?id=${id}`, {
+          target: "#card-detail",
+          swap: "innerHTML",
+        });
+      }
+
+      // Открытие карточки с сохранением индекса
+      function openCard(id) {
+        currentLocationIndex = filteredLocationIds.indexOf(id);
+        loadDetailCard(id);
+      }
+
+      // Копирование текста детальной карточки
+      async function copyDetailText() {
+        const overlay = document.getElementById("detail-overlay");
+        if (!overlay) return;
+
+        // Извлекаем текст из карточки
+        let text = "";
+
+        // Заголовок (название)
+        const h2 = overlay.querySelector("h2");
+        if (h2) {
+          text += h2.textContent.trim() + "\n\n";
+        }
+
+        // Все параграфы
+        const paragraphs = overlay.querySelectorAll("p");
+        paragraphs.forEach((p) => {
+          text += p.textContent.trim() + "\n";
+        });
+
+        try {
+          // Копируем в буфер обмена
+          await navigator.clipboard.writeText(text.trim());
+
+          // Визуальная обратная связь
+          const copyBtn = overlay.querySelector(".copy-btn");
+          if (copyBtn) {
+            copyBtn.classList.add("copied");
+
             setTimeout(() => {
-                cardDetail.innerHTML = '';
-                mapArea.classList.remove('has-detail');
-            }, 300);
+              copyBtn.classList.remove("copied");
+            }, 1500);
+          }
+        } catch (err) {
+          console.error("Failed to copy text:", err);
+          alert("Не удалось скопировать текст");
         }
-    }
+      }
 
-    // HTMX: добавляем .has-detail при открытии
-    document.body.addEventListener('htmx:afterSwap', function (evt) {
+      // HTMX: добавляем .has-detail при открытии и запускаем анимацию декора
+      document.body.addEventListener("htmx:afterSwap", function (evt) {
         if (evt.detail.target.id === "card-detail") {
-            document.querySelector('.map-area')?.classList.add('has-detail');
+          document.querySelector(".map-area")?.classList.add("has-detail");
+          // Запускаем анимацию декоративных элементов
+          const overlay = document.getElementById("detail-overlay");
+          if (overlay) {
+            // Небольшая задержка для плавности
+            setTimeout(() => {
+              overlay.classList.add("animate");
+            }, 50);
+          }
         }
-    });
-</script>
+      });
 
-</body>
+      // Управление кнопками прокрутки
+      const scrollToTopBtn = document.getElementById("scrollToTop");
+      const scrollToBottomBtn = document.getElementById("scrollToBottom");
+      const sidebar = document.querySelector(".sidebar");
+
+      // Показываем/скрываем кнопки при прокрутке sidebar
+      sidebar.addEventListener("scroll", function () {
+        if (sidebar.scrollTop > 300) {
+          scrollToTopBtn.classList.add("visible");
+          scrollToBottomBtn.classList.add("visible");
+        } else {
+          scrollToTopBtn.classList.remove("visible");
+          scrollToBottomBtn.classList.remove("visible");
+        }
+      });
+
+      // Плавная прокрутка вверх при клике
+      scrollToTopBtn.addEventListener("click", function () {
+        sidebar.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      });
+
+      // Загрузка всех карточек и прокрутка вниз
+      scrollToBottomBtn.addEventListener("click", async function () {
+        // Блокируем кнопку во время загрузки
+        scrollToBottomBtn.disabled = true;
+
+        // Получаем общее количество карточек
+        const totalCountEl = document.getElementById("total-count");
+        const totalCount = totalCountEl ? parseInt(totalCountEl.dataset.count) : 0;
+
+        if (totalCount === 0) {
+          scrollToBottomBtn.disabled = false;
+          return;
+        }
+
+        // Получаем текущее количество загруженных карточек
+        const currentCards = document.querySelectorAll("#cards .card").length;
+
+        if (currentCards >= totalCount) {
+          // Все уже загружено, просто прокручиваем вниз
+          sidebar.scrollTo({
+            top: sidebar.scrollHeight,
+            behavior: "smooth",
+          });
+          scrollToBottomBtn.disabled = false;
+          return;
+        }
+
+        // Получаем текущие фильтры
+        const search = document.getElementById("search").value;
+        const district = document.getElementById("district").value;
+        const selsovet = document.getElementById("selsovet").value;
+
+        // Формируем базовый URL
+        let baseUrl = "/api/locations?";
+        if (search) baseUrl += "search=" + encodeURIComponent(search) + "&";
+        if (district) baseUrl += "district=" + encodeURIComponent(district) + "&";
+        if (selsovet) baseUrl += "selsovet=" + encodeURIComponent(selsovet) + "&";
+
+        // Загружаем все оставшиеся карточки
+        let offset = currentCards;
+        const limit = 100;
+
+        while (offset < totalCount) {
+          try {
+            const url = baseUrl + `offset=${offset}&limit=${limit}`;
+            const response = await fetch(url);
+            const html = await response.text();
+
+            // Парсим HTML и извлекаем карточки
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+            const newCards = doc.querySelectorAll(".card");
+            const sentinelDiv = doc.querySelector('[hx-get][hx-trigger="intersect"]');
+
+            // Добавляем новые карточки в конец
+            const cardsContainer = document.getElementById("cards");
+            newCards.forEach(card => {
+              cardsContainer.appendChild(card);
+            });
+
+            // Обновляем offset
+            offset += newCards.length;
+
+            // Если карточек меньше чем limit, значит это последняя порция
+            if (newCards.length < limit) {
+              break;
+            }
+          } catch (error) {
+            console.error("Error loading cards:", error);
+            break;
+          }
+        }
+
+        // Обновляем список ID
+        updateFilteredLocationIds();
+
+        // Прокручиваем вниз
+        sidebar.scrollTo({
+          top: sidebar.scrollHeight,
+          behavior: "smooth",
+        });
+
+        // Разблокируем кнопку
+        scrollToBottomBtn.disabled = false;
+      });
+    </script>
+  </body>
 </html>
-

@@ -1,0 +1,51 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+venv/
+env/
+
+# SQLite
+*.db
+*.sqlite
+*.sqlite3
+Locations_fin.db
+
+# Временные файлы
+*.log
+*.tmp
+*.swp
+*~
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Docker
+Dockerfile.init
+docker-compose.yml
+
+# Scripts
+file.py
+migrate.py
+update_db.py
+init_db_docker.py
+
+# Documentation
+*.md
+DATABASE_UPDATE.md
+
+# CSV (будут в db-init контейнере)
+*.csv
+
+# Другие ненужные файлы
+.DS_Store
+Thumbs.db
