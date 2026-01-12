@@ -14,6 +14,7 @@ import (
 
 	"github.com/zeshi09/dialectApi/ent"
 	"github.com/zeshi09/dialectApi/ent/location"
+	"entgo.io/ent/dialect/sql"
 )
 
 var (
@@ -201,9 +202,11 @@ func handleLocations(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Загружаем порцию локаций (сортировка по алфавиту)
+	// Загружаем порцию локаций (сортировка по алфавиту без учета регистра)
 	locations, err := query.
-		Order(ent.Asc(location.FieldChrononym)).
+		Order(func(s *sql.Selector) {
+			s.OrderBy(sql.Asc("UPPER(chrononym)"))
+		}).
 		Offset(offset).
 		Limit(limit).
 		All(ctx)
